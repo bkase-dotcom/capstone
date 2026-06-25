@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergence — Design & Implementation Documentation</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #7b6cff;
+    --accent2: #ff6c9d;
+    --accent3: #6cffca;
+    --text: #e0e0f0;
+    --muted: #7070a0;
+    --code-bg: #0d0d18;
+    --warn: #ffbb44;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* ── Layout ─────────────────────────────────────────────────────── */
+
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ─────────────────────────────────────────────────────── */
+
+  nav {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.25rem;
+  }
+
+  nav .logo {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+  }
+
+  nav .subtitle {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  nav ul { list-style: none; }
+
+  nav .section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 1.5rem 0 0.5rem;
+  }
+
+  nav a {
+    display: block;
+    padding: 0.3rem 0.6rem;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+
+  nav a:hover { background: var(--surface2); color: var(--accent); }
+
+  /* ── Main content ────────────────────────────────────────────────── */
+
+  main {
+    padding: 3rem 4rem 6rem;
+    max-width: 900px;
+  }
+
+  /* ── Hero ────────────────────────────────────────────────────────── */
+
+  .hero {
+    margin-bottom: 3rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero .tagline {
+    font-size: 1.15rem;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .meta-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+  .pill {
+    display: inline-block;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .pill.accent { border-color: var(--accent); color: var(--accent); }
+  .pill.accent2 { border-color: var(--accent2); color: var(--accent2); }
+  .pill.accent3 { border-color: var(--accent3); color: var(--accent3); }
+
+  /* ── Section headings ────────────────────────────────────────────── */
+
+  section { margin-bottom: 3.5rem; }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+    color: var(--text);
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.6rem;
+    color: var(--accent3);
+  }
+
+  h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 1rem 0 0.4rem;
+    color: var(--warn);
+  }
+
+  p { margin-bottom: 0.9rem; }
+
+  /* ── Code ────────────────────────────────────────────────────────── */
+
+  code {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 0.85em;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+    color: var(--accent3);
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    margin: 1rem 0 1.25rem;
+    font-size: 0.83rem;
+    line-height: 1.6;
+  }
+
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: inherit;
+    color: var(--text);
+  }
+
+  .keyword { color: #c792ea; }
+  .type { color: #82aaff; }
+  .string { color: #c3e88d; }
+  .comment { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+
+  /* ── Decision boxes ──────────────────────────────────────────────── */
+
+  .decision {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+  }
+
+  .decision.warn { border-left-color: var(--warn); }
+  .decision.success { border-left-color: var(--accent3); }
+  .decision.danger { border-left-color: var(--accent2); }
+
+  .decision strong {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+    color: var(--accent);
+  }
+
+  .decision.warn strong { color: var(--warn); }
+  .decision.success strong { color: var(--accent3); }
+  .decision.danger strong { color: var(--accent2); }
+
+  /* ── Tables ──────────────────────────────────────────────────────── */
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  /* ── Architecture diagram ────────────────────────────────────────── */
+
+  .arch {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+
+  .arch-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  .arch-box .title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .arch-box ul {
+    list-style: none;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .arch-box ul li::before { content: "→ "; color: var(--accent3); }
+
+  /* ── Divider ─────────────────────────────────────────────────────── */
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  /* ── Axis table colors ───────────────────────────────────────────── */
+
+  .ok { color: var(--accent3); font-weight: 600; }
+  .bad { color: var(--accent2); font-weight: 600; }
+
+  /* ── TOC anchor offset ───────────────────────────────────────────── */
+  [id] { scroll-margin-top: 1.5rem; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<nav>
+  <div class="logo">Emergence</div>
+  <div class="subtitle">Design Documentation</div>
+
+  <div class="section-label">Overview</div>
+  <ul>
+    <li><a href="#vision">Vision &amp; Concept</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#file-map">File Map</a></li>
+  </ul>
+
+  <div class="section-label">Physics Engine</div>
+  <ul>
+    <li><a href="#quantum">Quantum Mechanics</a></li>
+    <li><a href="#wavefunction">Wavefunction Math</a></li>
+    <li><a href="#transitions">Transitions &amp; Photons</a></li>
+  </ul>
+
+  <div class="section-label">Rendering</div>
+  <ul>
+    <li><a href="#pointcloud">1M-Point Cloud</a></li>
+    <li><a href="#material">ShaderGraph Material</a></li>
+    <li><a href="#transition-anim">Transition Animation</a></li>
+    <li><a href="#immersion">Immersion Modes</a></li>
+  </ul>
+
+  <div class="section-label">Spatial Interaction</div>
+  <ul>
+    <li><a href="#handtracker">HandTracker</a></li>
+    <li><a href="#drag">One-Hand Drag</a></li>
+    <li><a href="#twohand">Two-Hand Scale/Rotate</a></li>
+    <li><a href="#tap">Photon Firing (Tap)</a></li>
+    <li><a href="#coasting">Coasting</a></li>
+    <li><a href="#coords">Coordinate Spaces</a></li>
+  </ul>
+
+  <div class="section-label">UI</div>
+  <ul>
+    <li><a href="#control-panel">Control Panel</a></li>
+    <li><a href="#photon-slider">Photon Slider</a></li>
+  </ul>
+
+  <div class="section-label">Decisions</div>
+  <ul>
+    <li><a href="#key-decisions">Key Design Decisions</a></li>
+    <li><a href="#constants">Tuning Constants</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <h1>Emergence</h1>
+  <p class="tagline">An interactive visionOS simulation of the hydrogen atom's quantum probability density, designed for Apple Vision Pro.</p>
+  <div class="meta-pills">
+    <span class="pill accent">visionOS 2+</span>
+    <span class="pill accent">Swift / SwiftUI</span>
+    <span class="pill accent">RealityKit</span>
+    <span class="pill accent">ARKit</span>
+    <span class="pill accent2">ArtCenter Capstone 2026</span>
+    <span class="pill accent3">Ben Kase</span>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────── -->
+<section id="vision">
+<h2>Vision &amp; Concept</h2>
+
+<p>Emergence places the user inside the hydrogen atom. The atom's electron probability density — the real-world quantum cloud described by the Schrödinger equation — is rendered as a million-point particle cloud that hovers in mixed reality or fills a pitch-black quantum space.</p>
+
+<p>The name reflects a core insight: complex, ordered structure <em>emerges</em> from simple quantum rules. Each orbital shape — the dumbbell of a p-orbital, the cloverleaf of a d-orbital — is not designed but derived directly from wavefunction mathematics. The user manipulates and fires photons at the atom, watching it absorb energy, jump to excited states, and spontaneously decay back toward the ground state with physically-accurate selection rules and timescales.</p>
+
+<h3>Design principles that guided every decision</h3>
+<ul style="padding-left:1.25rem; margin-bottom:0.9rem;">
+  <li><strong>Physically accurate first.</strong> Energy levels, selection rules, wavelengths, and lifetimes use CODATA-2018 constants. The display is a faithful projection of quantum mechanics, not an artistic approximation.</li>
+  <li><strong>Match the platform's native feel.</strong> Every gesture uses the same pipeline visionOS itself uses — system-predicted hand tracking, not custom thresholds. The app should feel indistinguishable from a first-party Apple app in how it responds to the user's hands.</li>
+  <li><strong>The science is the art.</strong> The fiery warm colormap, the cold lavender of transition superpositions, the glowing photon spheres — all are derived from the physics. No decorative elements are added that don't encode real information.</li>
+</ul>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="architecture">
+<h2>Architecture</h2>
+
+<div class="arch">
+  <div class="arch-box">
+    <div class="title">Physics Layer</div>
+    <ul>
+      <li>HydrogenPhysics.swift</li>
+      <li>WavefunctionMath.swift</li>
+      <li>AtomState.swift</li>
+    </ul>
+  </div>
+  <div class="arch-box">
+    <div class="title">Rendering Layer</div>
+    <ul>
+      <li>ImmersiveView.swift</li>
+      <li>LowLevelMesh (1M pts)</li>
+      <li>PointCloudMaterial.usda</li>
+      <li>TransitionController.swift</li>
+    </ul>
+  </div>
+  <div class="arch-box">
+    <div class="title">Interaction Layer</div>
+    <ul>
+      <li>HandTracker.swift</li>
+      <li>DragGesture (system)</li>
+      <li>MagnifyGesture (system)</li>
+      <li>RotateGesture3D (system)</li>
+      <li>SpatialTapGesture</li>
+    </ul>
+  </div>
+</div>
+
+<p>The app is structured as three independent layers that communicate through <code>AppModel</code> (an <code>@Observable</code> singleton). The physics layer runs in a polling loop at ~125 Hz; rendering runs at the compositor's 90 Hz frame rate via <code>TimelineView(.animation)</code>; the interaction layer is purely event-driven through SwiftUI gestures.</p>
+
+<div class="decision success">
+  <strong>Architectural choice</strong>
+  Combine was intentionally avoided. All async work uses Swift's structured concurrency (<code>async/await</code>, <code>Task</code>, <code>actor</code>). The physics loop is a cancellable <code>Task</code> sleeping 8 ms per iteration; the ARKit session uses <code>async for</code> over <code>HandTrackingProvider.anchorUpdates</code>.
+</div>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="file-map">
+<h2>File Map</h2>
+<table>
+  <tr><th>File</th><th>Responsibility</th></tr>
+  <tr><td><code>EmergenceApp.swift</code></td><td>App entry point; creates <code>AppModel</code> and opens the immersive space</td></tr>
+  <tr><td><code>AppModel.swift</code></td><td>App-wide state: immersion mode, photon firing toggle, <code>AtomStateMachine</code></td></tr>
+  <tr><td><code>ContentView.swift</code></td><td>SwiftUI control panel: quantum state picker, photon energy slider, snap buttons</td></tr>
+  <tr><td><code>ImmersiveView.swift</code></td><td>RealityKit scene, 1M-point cloud, all gesture handling, photon lifecycle</td></tr>
+  <tr><td><code>HandTracker.swift</code></td><td>ARKit <code>HandTrackingProvider</code> + <code>WorldTrackingProvider</code> wrapper</td></tr>
+  <tr><td><code>Physics/HydrogenPhysics.swift</code></td><td>CODATA constants, energy levels, selection rules, wavelength→RGB</td></tr>
+  <tr><td><code>Physics/WavefunctionMath.swift</code></td><td>Real spherical harmonics, radial wavefunctions, |ψ|² evaluation</td></tr>
+  <tr><td><code>Physics/AtomState.swift</code></td><td>State machine: absorption, emission, ionization, spontaneous decay</td></tr>
+  <tr><td><code>TransitionController.swift</code></td><td>Manages quantum-jump animation phase between two orbital states</td></tr>
+  <tr><td><code>WavefunctionSplatGenerator.swift</code></td><td>CPU importance sampling for the point cloud rebuild</td></tr>
+  <tr><td><code>PointCloudMaterial.usda</code></td><td>ShaderGraph: unlit, vertex-color pass-through, depth write enabled</td></tr>
+</table>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="quantum">
+<h2>Quantum Mechanics</h2>
+
+<h3>What is being visualized</h3>
+<p>The electron in a hydrogen atom occupies a bound state characterized by three quantum numbers:</p>
+<table>
+  <tr><th>Symbol</th><th>Name</th><th>Range</th><th>Meaning</th></tr>
+  <tr><td><code>n</code></td><td>Principal</td><td>1 – 6</td><td>Energy level; determines orbital size</td></tr>
+  <tr><td><code>ℓ</code></td><td>Angular momentum</td><td>0 – n-1</td><td>Orbital shape (s, p, d, f, g, h)</td></tr>
+  <tr><td><code>m</code></td><td>Magnetic</td><td>-ℓ – +ℓ</td><td>Orientation of angular momentum</td></tr>
+</table>
+
+<p>The rendered cloud is the probability density |ψ<sub>nℓm</sub>(r,θ,φ)|², where ψ is the real-valued spherical harmonic combination of the analytic wavefunction. Points are sampled proportional to this density, so denser regions of the cloud correspond to higher probability of finding the electron.</p>
+
+<h3>Energy levels (Bohr formula)</h3>
+<pre><code><span class="comment">// E_n = -13.606 eV / n²</span>
+<span class="keyword">static func</span> energyLevel(<span class="keyword">_</span> n: <span class="type">Int</span>) -> <span class="type">Double</span> {
+    -rydbergEv / <span class="type">Double</span>(n * n)
+}</code></pre>
+
+<h3>Selection rules (E1 / dipole transitions)</h3>
+<p>Only transitions satisfying Δℓ = ±1 and |Δm| ≤ 1 are allowed. This is enforced in both absorption matching and spontaneous emission targeting. The 2s orbital is metastable because no allowed E1 path to 1s exists (Δℓ would be 0, not ±1).</p>
+
+<h3>Time dilation</h3>
+<p>The actual excited-state lifetime for n=2 is ~1.6 ns. Scaled by the display slowdown factor (1.17 × 10⁸), a minimum dwell of 20 display-seconds is enforced so users can observe each orbital before the atom decays.</p>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="wavefunction">
+<h2>Wavefunction Math</h2>
+
+<p>All wavefunction evaluation is in <code>WavefunctionMath.swift</code>. The key function is <code>psi2Real</code>, which evaluates the real-valued probability density at a Cartesian point:</p>
+
+<pre><code><span class="comment">// Real spherical harmonic combination (no complex exponentials)</span>
+<span class="keyword">static func</span> psi2Real(x: <span class="type">Double</span>, y: <span class="type">Double</span>, z: <span class="type">Double</span>,
+                       n: <span class="type">Int</span>, l: <span class="type">Int</span>, m: <span class="type">Int</span>, a: <span class="type">Double</span>) -> <span class="type">Double</span></code></pre>
+
+<p>The effective Bohr radius <code>aEff</code> is reduced for high-n orbitals so the outermost lobe stays within the 0.35 m display sphere:</p>
+
+<pre><code><span class="keyword">private static func</span> effectiveA(<span class="keyword">for</span> n: <span class="type">Int</span>) -> <span class="type">Double</span> {
+    <span class="keyword">let</span> maxAllowed = displayRBox / <span class="type">Double</span>(<span class="num">2</span> * n * n)
+    <span class="keyword">return</span> min(displayAWorld, maxAllowed)
+}</code></pre>
+
+<p>Point sampling uses a 128³ grid CDF (cumulative distribution function) with Gaussian jitter (σ = 1.2 × grid step) applied per-sample. This avoids hard cube-face artifacts and produces a smooth, continuous-looking cloud.</p>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="transitions">
+<h2>Transitions &amp; Photons</h2>
+
+<h3>Photon firing</h3>
+<p>The user fires photons with <code>SpatialTapGesture</code> (a pinch-tap on the atom entity). A glowing sphere is spawned at the user's pinch position and travels to the atom's current position at 2 m/s. On arrival, <code>AtomStateMachine.tryAbsorb</code> checks for resonance within ±0.08 eV. If resonant, the atom jumps to the target state; if the photon energy exceeds the ionization threshold, the atom ionizes and recombines after a 2-second delay.</p>
+
+<h3>Transition animation (superposition rendering)</h3>
+<p>During a quantum jump, <code>TransitionController</code> advances a phase angle φ from 0→2π over ~1.5 seconds. The point cloud switches from the static 1M-point orbital render to a 500K-point superposition render:</p>
+<pre><code><span class="comment">// Superposition density: |ψ_A + ψ_B·e^(iφ)|²</span>
+<span class="keyword">let</span> d = <span class="num">0.5</span> * (pA*pA + pB*pB) + pA*pB*cosPh</code></pre>
+<p>Points in regions of constructive interference are rendered in the warm fire colormap; destructive interference regions use the cool indigo-lavender colormap, encoding the quantum phase structure of the two-state superposition.</p>
+
+<div class="decision">
+  <strong>Design decision</strong>
+  The transition render uses a coarser 32³ grid (vs the static 128³) to keep per-frame rebuild under ~16 ms on the Vision Pro GPU. Resolution was traded for frame rate during the animation.
+</div>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="pointcloud">
+<h2>1M-Point Cloud Rendering</h2>
+
+<p>The probability cloud is rendered as exactly 1,000,000 point primitives using <code>LowLevelMesh</code> — RealityKit's lowest-overhead mesh API. Each vertex carries a 3D position and a packed BGRA color (4 bytes). The total buffer is 28 MB.</p>
+
+<pre><code><span class="keyword">private struct</span> <span class="type">PointVertex</span> {
+    <span class="keyword">var</span> position: <span class="type">SIMD3&lt;Float&gt;</span> = .zero
+    <span class="keyword">var</span> color: <span class="type">UInt32</span> = <span class="num">0</span>  <span class="comment">// packed BGRA</span>
+}</code></pre>
+
+<h3>Colormap</h3>
+<p>Point color encodes the local probability density, normalized to the orbital's maximum. The warm "fire" ramp (deep violet → red → orange → white) makes high-density regions (near antinodes) glow hottest:</p>
+
+<table>
+  <tr><th>Density range</th><th>Color</th></tr>
+  <tr><td>0 – 20%</td><td>Deep violet → dim purple</td></tr>
+  <tr><td>20 – 45%</td><td>Purple → red</td></tr>
+  <tr><td>45 – 70%</td><td>Red → orange</td></tr>
+  <tr><td>70 – 88%</td><td>Orange → warm yellow-white</td></tr>
+  <tr><td>88 – 100%</td><td>White-hot</td></tr>
+</table>
+
+<h3>Rebuild pipeline</h3>
+<p>When the quantum state changes, a rebuild is dispatched to a <code>DispatchQueue.global(.userInitiated)</code> background thread. After the 16 MB buffer copy, a <code>Task.yield()</code> allows hand-tracking updates to run before committing the <code>LowLevelMesh.Part</code> that makes the new cloud visible. This prevents a frame drop during the largest state changes.</p>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="material">
+<h2>ShaderGraph Material</h2>
+
+<p><code>PointCloudMaterial.usda</code> is a RealityKit ShaderGraph material loaded from the <code>RealityKitContent</code> package. Its key properties:</p>
+<ul style="padding-left:1.25rem; margin-bottom:0.9rem;">
+  <li><strong>Unlit surface shader</strong> — the cloud glows regardless of scene lighting; perfect for quantum "glow"</li>
+  <li><strong>Vertex color pass-through</strong> — the packed per-vertex BGRA maps directly to surface color</li>
+  <li><strong>Opacity 0.8</strong> — slight transparency gives depth to overlapping point layers</li>
+  <li><strong>Depth write enabled</strong> — points correctly occlude each other</li>
+  <li><strong>Point topology</strong> — rendered as individual screen-space quads, not triangles</li>
+</ul>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="immersion">
+<h2>Immersion Modes</h2>
+
+<table>
+  <tr><th>Mode</th><th>ImmersionStyle</th><th>Experience</th></tr>
+  <tr>
+    <td>Mixed Reality</td>
+    <td><code>.mixed</code></td>
+    <td>The atom floats in the user's real environment. Compatible with Apple Environments (Yosemite, Moon, etc.). Windows and the atom coexist in the real world.</td>
+  </tr>
+  <tr>
+    <td>Quantum Realm</td>
+    <td><code>.full</code></td>
+    <td>Pitch-black space. Orbital structure reads most clearly against no environmental noise. Note: visionOS renders system windows in front of full-immersion content (system limitation).</td>
+  </tr>
+</table>
+
+<div class="decision warn">
+  <strong>Known visionOS limitation</strong>
+  In full immersion mode, SwiftUI windows always render on top of RealityKit content. This is a visionOS system constraint, not an app bug. Users are informed of this in the control panel.
+</div>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="handtracker">
+<h2>HandTracker</h2>
+
+<p><code>HandTracker.swift</code> wraps <code>ARKit.HandTrackingProvider</code> and <code>WorldTrackingProvider</code> in a <code>@MainActor @Observable</code> class. It provides:</p>
+
+<table>
+  <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+  <tr><td><code>left.isTracked</code></td><td><code>Bool</code></td><td>Whether ARKit currently has the left hand in view</td></tr>
+  <tr><td><code>left.isPinching</code></td><td><code>Bool</code></td><td>Thumb-index distance &lt; 15 mm</td></tr>
+  <tr><td><code>left.pinchPoint</code></td><td><code>SIMD3&lt;Float&gt;</code></td><td>Midpoint of thumb tip and index tip, world space</td></tr>
+  <tr><td><code>activePinching</code></td><td><code>Bool</code></td><td>Either hand is pinching</td></tr>
+  <tr><td><code>isAnyHandTracked</code></td><td><code>Bool</code></td><td>Either hand is currently seen by cameras</td></tr>
+  <tr><td><code>deviceTransform</code></td><td><code>simd_float4x4?</code></td><td>Head pose in world space (for dragScale)</td></tr>
+</table>
+
+<h3>Pinch threshold</h3>
+<p>The threshold is 15 mm (reduced from an original 22 mm). The 22 mm value caused near-pinch false positives — fingers close together but not touching would trigger scale/rotate gestures. The tighter 15 mm threshold matches the physical reality of an actual pinch.</p>
+
+<div class="decision warn">
+  <strong>Role of HandTracker vs system gestures</strong>
+  HandTracker is now used only for: (1) the two-hand midpoint translation during MagnifyGesture, (2) distinguishing hand-occluded from hand-open states during drag, and (3) coasting cancellation. All gesture <em>detection</em> has been migrated to system SwiftUI gestures.
+</div>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="drag">
+<h2>One-Hand Drag</h2>
+
+<h3>Why system gestures, not custom ARKit tracking</h3>
+<p>The original implementation used raw ARKit joint positions (<code>HandTracker.activePinchPoint</code>) for drag. This caused a critical UX problem: when the user's thumb occludes the index finger from the Vision Pro cameras during certain hand orientations, ARKit loses the pinch and the atom freezes. When tracking recovers, the atom snaps to the new position.</p>
+
+<p><code>DragGesture(minimumDistance: 0).targetedToAnyEntity()</code> uses the same predictive ML model that drives visionOS window dragging. The system extrapolates hand position through brief tracking gaps, producing a continuous stream with no freezes.</p>
+
+<h3>Predicted position extraction</h3>
+<pre><code><span class="comment">// inputDevicePose3D is in entity-local (SwiftUI Y-down) space.
+// value.convert moves it to RealityKit scene (Y-up) world space.</span>
+<span class="keyword">if let</span> pose = value.inputDevicePose3D {
+    <span class="keyword">let</span> s = value.convert(pose.position, <span class="keyword">from</span>: .local, <span class="keyword">to</span>: .scene)
+    pt = <span class="type">SIMD3&lt;Float&gt;</span>(<span class="type">Float</span>(s.x), <span class="type">Float</span>(s.y), <span class="type">Float</span>(s.z))
+} <span class="keyword">else if let</span> hp = handTracker.activePinchPoint {
+    pt = hp  <span class="comment">// Simulator fallback</span>
+}</code></pre>
+
+<h3>Delta-drag formula</h3>
+<p>The atom's position is computed from an anchor rather than accumulated deltas. This prevents drift:</p>
+<pre><code>atomPos = dragAtomStart + (currentPinch − dragStartPinch) × dragScale</code></pre>
+
+<h3>dragScale — angular amplification</h3>
+<p>The atom can be 1–2 meters away while the hand moves only centimeters. <code>dragScale</code> amplifies hand motion proportionally to the atom's distance from the head:</p>
+<pre><code>dragScale = min(atomDist / handDist, <span class="num">1.3</span>)</code></pre>
+<p>Capped at 1.3× to prevent runaway amplification for very distant atoms.</p>
+
+<h3>Open-palm guard</h3>
+<p>The system gesture can remain active briefly after a pinch releases. A guard distinguishes "hand occluded" (let the prediction continue) from "hand visibly open" (stop dragging):</p>
+<pre><code><span class="comment">// Hand visible + not pinching = genuinely open → end drag</span>
+<span class="keyword">if</span> handTracker.isAnyHandTracked && !handTracker.activePinching {
+    <span class="keyword">if</span> isDraggingAtom { startCoastingIfFast() }
+    isDraggingAtom = <span class="keyword">false</span>
+    <span class="keyword">return</span>
+}</code></pre>
+
+<h3>Movement threshold</h3>
+<p>Drag doesn't commit until the pinch has moved 1.5 cm from its starting position. This prevents a tap from accidentally initiating a drag.</p>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="twohand">
+<h2>Two-Hand Scale &amp; Rotate</h2>
+
+<h3>System gesture pipeline</h3>
+<p>The original two-hand implementation used raw ARKit hand positions with a manual distance ratio for scale and cross-product for rotation. This was replaced with <code>MagnifyGesture</code> and <code>RotateGesture3D</code>, which use the same system ML pipeline as visionOS window resizing and rotating. The system handles pinch detection — no manual thresholds are involved.</p>
+
+<table>
+  <tr><th>Gesture</th><th>Value used</th><th>Applied as</th></tr>
+  <tr><td><code>MagnifyGesture</code></td><td><code>value.magnification</code> — cumulative scale factor from gesture start</td><td><code>newScale = anchorScale × magnification</code></td></tr>
+  <tr><td><code>RotateGesture3D</code></td><td><code>value.rotation.quaternion</code> — cumulative <code>Rotation3D</code></td><td><code>orientation = dq × anchorRot</code></td></tr>
+</table>
+
+<h3>Midpoint translation</h3>
+<p>During magnify, the atom's center tracks the midpoint between both hands. HandTracker provides the raw positions since no system gesture exposes absolute world-space hand positions:</p>
+<pre><code><span class="keyword">let</span> mid = (handTracker.left.pinchPoint + handTracker.right.pinchPoint) * <span class="num">0.5</span>
+atomContainer?.position = anchorPos + (mid − anchorMid)</code></pre>
+
+<h3>Coordinate axis correction for RotateGesture3D</h3>
+<p><code>RotateGesture3D.Value.rotation</code> arrives in a coordinate frame that disagrees with RealityKit world space on two of three axes:</p>
+
+<table>
+  <tr><th>Axis</th><th>Gesture convention</th><th>RealityKit</th><th>Fix</th></tr>
+  <tr><td>Y (up)</td><td class="ok">+Y up</td><td class="ok">+Y up</td><td>None — <span class="ok">correct</span></td></tr>
+  <tr><td>X (right)</td><td class="bad">+X right, but rotation direction inverted</td><td class="ok">+X right</td><td><span class="bad">Negate ix</span></td></tr>
+  <tr><td>Z (depth)</td><td class="bad">+Z toward user</td><td class="ok">−Z forward</td><td><span class="bad">Negate iz</span></td></tr>
+</table>
+
+<pre><code><span class="keyword">let</span> qd = value.rotation.quaternion  <span class="comment">// simd_quatd</span>
+<span class="comment">// Negate ix and iz; leave iy (Y/up axis is shared)</span>
+<span class="keyword">let</span> dq = <span class="type">simd_quatf</span>(ix: -<span class="type">Float</span>(qd.imag.x), iy: <span class="type">Float</span>(qd.imag.y),
+                    iz: -<span class="type">Float</span>(qd.imag.z), r: <span class="type">Float</span>(qd.real))</code></pre>
+
+<p>This correction was arrived at empirically by testing one axis at a time: Y worked from the start; Z ("parallel to screen" rotation) was flipped first and required negating iz; X ("horizontal axis, left-to-right") was tested last and required negating ix.</p>
+
+<h3>Scale limits</h3>
+<p>The atom scale is clamped to [0.2×, 10×] of the initial 2× scale. The hit sphere inverse-scales to maintain constant world-space input target radius regardless of atom scale.</p>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="tap">
+<h2>Photon Firing (Tap)</h2>
+
+<p>Photon firing uses <code>SpatialTapGesture().targetedToAnyEntity()</code>, which uses visionOS's ML-based contact detection — the same system that powers button taps throughout the OS. This replaces an earlier custom threshold approach (22 mm thumb-index distance) that fired too easily from near-pinches.</p>
+
+<p>The photon origin is the user's last known pinch position, captured during drag (<code>lastKnownPinchPos</code>) and updated each drag frame. This ensures that even after fingers separate for the tap, the photon launches from the right location.</p>
+
+<pre><code><span class="comment">// .gesture runs with higher priority than .simultaneousGesture</span>
+.gesture(SpatialTapGesture().targetedToAnyEntity().onEnded { _ <span class="keyword">in</span>
+    <span class="keyword">guard</span> photonFiringEnabled, !isDraggingAtom, !isTwoHandScaling <span class="keyword">else</span> { <span class="keyword">return</span> }
+    firePhoton(<span class="keyword">from</span>: lastKnownPinchPos ?? simulatorHandPos,
+               ev: atomState.dialedPhotonEv)
+})</code></pre>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="coasting">
+<h2>Coasting (Momentum)</h2>
+
+<p>After a fast drag release, the atom coasts with exponential velocity decay, matching visionOS window behavior. The velocity is tracked during drag using an exponential moving average (EMA) to smooth out per-frame jitter:</p>
+<pre><code><span class="comment">// EMA: 80% new sample, 20% history — responsive but not noisy</span>
+atomVelocity = atomVelocity * <span class="num">0.2</span> + rawVel * <span class="num">0.8</span></code></pre>
+
+<p>On drag end, if the speed exceeds <code>coastThreshold</code> (0.25 m/s), coasting begins with speed capped at 2.5 m/s:</p>
+<pre><code><span class="comment">// Decay: v(t) = v₀ · e^(−momentumDecay · t)</span>
+<span class="comment">// momentumDecay = 5.0 → half-life ≈ 140 ms</span>
+atomVelocity *= exp(-momentumDecay * dt)</code></pre>
+
+<div class="decision">
+  <strong>Tuning history</strong>
+  The initial decay constant was 9.0 (half-life ~77 ms), which felt too abrupt compared to visionOS windows. Reduced to 5.0 (~140 ms) to match the window glide feel. Coasting integrates position in the 8 ms polling loop, not the 90 Hz RealityKit update closure, to avoid writing <code>@State</code> inside the compositor callback.
+</div>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="coords">
+<h2>Coordinate Space Reference</h2>
+
+<p>Three coordinate spaces are in play and must be carefully distinguished:</p>
+
+<table>
+  <tr><th>Space</th><th>Y axis</th><th>Z forward</th><th>Used by</th></tr>
+  <tr><td>RealityKit world</td><td>+Y up</td><td>−Z</td><td>Entity positions, orientations</td></tr>
+  <tr><td>ARKit world</td><td>+Y up</td><td>−Z</td><td>HandTracker joint positions</td></tr>
+  <tr><td>SwiftUI entity-local</td><td>+Y down</td><td>+Z toward user</td><td><code>inputDevicePose3D</code>, <code>RotateGesture3D.rotation</code></td></tr>
+</table>
+
+<h4>Position conversion (drag)</h4>
+<pre><code>value.convert(pose.position, from: .local, to: .scene)</code></pre>
+<p>Converts <code>inputDevicePose3D.position</code> from entity-local (SwiftUI Y-down) to scene (RealityKit Y-up) space.</p>
+
+<h4>Rotation conversion (two-hand rotate)</h4>
+<pre><code><span class="comment">// iy unchanged (Y-up is shared). ix and iz negated (both axes differ).</span>
+simd_quatf(ix: -Float(qd.imag.x), iy: Float(qd.imag.y),
+           iz: -Float(qd.imag.z), r: Float(qd.real))</code></pre>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="control-panel">
+<h2>Control Panel (ContentView)</h2>
+
+<p>The SwiftUI window provides full control over the simulation without entering the immersive space:</p>
+<ul style="padding-left:1.25rem; margin-bottom:0.9rem;">
+  <li><strong>Current State</strong> — live orbital label, binding energy in eV, degeneracy count</li>
+  <li><strong>Quantum State Picker</strong> — cascading pickers for n, ℓ, m with constraint enforcement (ℓ &lt; n, |m| ≤ ℓ), Apply button bypasses photon absorption and pins the atom</li>
+  <li><strong>Photon Energy</strong> — slider 1.5–14.0 eV with color swatch showing the photon's visible wavelength color</li>
+  <li><strong>Snap to Resonance</strong> — scrollable row of buttons that snap the slider to each available transition energy</li>
+  <li><strong>Immersion Mode</strong> — segmented control: Mixed Reality vs Quantum Realm</li>
+  <li><strong>Photon Firing Toggle</strong> — disable taps to observe the atom without accidentally firing</li>
+</ul>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="photon-slider">
+<h2>Photon Energy Slider</h2>
+
+<p>The slider range (1.5–14.0 eV) covers:</p>
+<ul style="padding-left:1.25rem; margin-bottom:0.9rem;">
+  <li>All Lyman, Balmer, Paschen, Brackett, Pfund, and Humphreys series transitions (n=1–6)</li>
+  <li>The ionization threshold of the ground state (13.6 eV)</li>
+</ul>
+
+<p>The color swatch converts the dialed eV to a wavelength via <code>hc/E</code> and uses the Dan Bruton wavelength-to-RGB approximation (with gamma 0.8 and edge rolloff). UV photons show dim violet; IR photons show dim red. A resonance indicator shows green (exact match ±0.08 eV) or yellow (ionizing).</p>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="key-decisions">
+<h2>Key Design Decisions</h2>
+
+<div class="decision success">
+  <strong>Decision: Use system gesture pipeline throughout</strong>
+  All gesture detection was migrated from custom ARKit threshold comparisons to SwiftUI system gestures (<code>DragGesture</code>, <code>MagnifyGesture</code>, <code>RotateGesture3D</code>, <code>SpatialTapGesture</code>). This provides the same quality of tracking that visionOS itself uses for windows, with predictive extrapolation through occlusion gaps and ML-based contact detection. The app's interactions feel native because they <em>are</em> native.
+</div>
+
+<div class="decision success">
+  <strong>Decision: Real spherical harmonics (not eigenstate densities)</strong>
+  The real-valued combinations of ψ<sub>nℓm</sub> are visualized rather than the complex eigenstates. This is the conventional choice in chemistry education (p<sub>x</sub>, p<sub>y</sub>, d<sub>xy</sub>, etc.) and produces the familiar dumbbell and cloverleaf shapes that match textbook orbital diagrams.
+</div>
+
+<div class="decision success">
+  <strong>Decision: Importance sampling over uniform sampling</strong>
+  Points are drawn from a CDF built over the 128³ density grid, not placed uniformly in space. This concentrates points where the probability density is high, making orbital structure legible even in regions with very different density scales (e.g., a 3d orbital has both a core region and outer lobes).
+</div>
+
+<div class="decision">
+  <strong>Decision: LowLevelMesh over ModelEntity</strong>
+  <code>LowLevelMesh</code> with manual buffer management was chosen over <code>ModelEntity</code> because it allows zero-copy CPU→GPU updates of exactly the 28 MB vertex buffer without going through RealityKit's mesh builder pipeline. This was necessary to keep state-change rebuilds under 16 ms on device.
+</div>
+
+<div class="decision warn">
+  <strong>Decision: No Combine</strong>
+  Combine was explicitly avoided throughout. All asynchronous work uses Swift's structured concurrency. The user specified this preference at the architectural level, and it produces cleaner cancellation semantics, especially for the rebuild tasks that must be cancelled when a new state change arrives before the previous rebuild finishes.
+</div>
+
+<div class="decision">
+  <strong>Decision: Delta-drag formula (not accumulated deltas)</strong>
+  Atom position is computed as <code>atomStart + (currentPinch − startPinch) × scale</code> rather than accumulating frame-to-frame deltas. Accumulated deltas drift due to floating-point error and produce jitter when the velocity EMA is active. The anchor formula is stable regardless of frame rate.
+</div>
+
+<div class="decision warn">
+  <strong>Decision: No @State writes in the RealityKit update: closure</strong>
+  The <code>RealityView update:</code> closure runs at compositor frame rate (90 Hz). Writing <code>@State</code> inside it triggers SwiftUI re-renders every frame, causing a cascade. All mutable state that needs to be read in <code>update:</code> is written in gesture handlers or the 8 ms polling loop, and only <em>read</em> inside the compositor callback.
+</div>
+</section>
+
+<!-- ──────────────────────────────────────── -->
+<section id="constants">
+<h2>Tuning Constants</h2>
+
+<table>
+  <tr><th>Constant</th><th>Value</th><th>Rationale</th></tr>
+  <tr><td><code>atomPosition</code></td><td>(0, 1.2, −1.2)</td><td>1.2 m in front, 1.2 m above floor — comfortable eye-level hover in standing use</td></tr>
+  <tr><td><code>displayRBox</code></td><td>0.35 m</td><td>Radius of the point cloud bounding box; fills ~60° FOV at arm's length</td></tr>
+  <tr><td><code>initialScale</code></td><td>2.0×</td><td>Makes the cloud large enough to read detail without occupying the full FOV</td></tr>
+  <tr><td><code>pinchThreshold</code></td><td>15 mm</td><td>Reduced from 22 mm — tighter to avoid near-pinch false positives in HandTracker</td></tr>
+  <tr><td><code>moveThreshold</code></td><td>1.5 cm</td><td>Hand must move 1.5 cm before drag commits — prevents taps from becoming drags</td></tr>
+  <tr><td><code>dragScale</code> cap</td><td>1.3×</td><td>Maximum angular amplification — prevents the atom flying off-screen for distant grabs</td></tr>
+  <tr><td><code>momentumDecay</code></td><td>5.0</td><td>Exponential decay constant; half-life ~140 ms — matches visionOS window glide</td></tr>
+  <tr><td><code>coastThreshold</code></td><td>0.25 m/s</td><td>Minimum release speed to trigger coasting — slow releases stop immediately</td></tr>
+  <tr><td><code>coastSpeedCap</code></td><td>2.5 m/s</td><td>Maximum coasting speed — prevents distant-atom drags from flinging the atom</td></tr>
+  <tr><td><code>photonSpeed</code></td><td>2.0 m/s</td><td>Visual travel speed — slow enough to see the photon arc, fast enough not to feel sluggish</td></tr>
+  <tr><td><code>absorptionTolerance</code></td><td>±0.08 eV</td><td>Match window — generous enough to hit with the slider but precise enough to feel intentional</td></tr>
+  <tr><td><code>slowdown</code></td><td>1.17 × 10⁸</td><td>Time dilation factor — scales real radiative lifetimes to human-perceptible dwell times</td></tr>
+  <tr><td><code>minDwellSeconds</code></td><td>20 s</td><td>Minimum display time per orbital — enough for a user to observe the shape before decay</td></tr>
+  <tr><td><code>nMax</code></td><td>6</td><td>Highest principal quantum number — 6th level covers all visible Balmer series lines</td></tr>
+</table>
+</section>
+
+<hr>
+<p style="color:var(--muted); font-size:0.8rem;">
+  Emergence · ArtCenter College of Design · Capstone 2026 · Ben Kase<br>
+  Built with Swift, SwiftUI, RealityKit, ARKit, and Metal on Apple Vision Pro.
+</p>
+
+</main>
+</div>
+
+</body>
+</html>
