@@ -1,0 +1,32 @@
+#usda 1.0
+(
+    defaultPrim = "Root"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Root"
+{
+    def Material "PointCloudMaterial"
+    {
+        token outputs:mtlx:surface.connect = </Root/PointCloudMaterial/UnlitSurface.outputs:out>
+        token outputs:realitykit:vertex
+
+        def Shader "UnlitSurface"
+        {
+            uniform token info:id = "ND_realitykit_unlit_surfaceshader"
+            color3f inputs:color.connect = </Root/PointCloudMaterial/GeomColor.outputs:out>
+            float inputs:opacity = 0.8
+            bool inputs:applyPostProcessToneMap = 0
+            bool inputs:hasPremultipliedAlpha = 0
+            token outputs:out
+        }
+
+        def Shader "GeomColor"
+        {
+            uniform token info:id = "ND_geomcolor_color3"
+            int inputs:index = 0
+            color3f outputs:out
+        }
+    }
+}
